@@ -1,0 +1,29 @@
+version: "3"
+services:
+  vpn_proxy:
+    image: act28/openvpn-proxy
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    dns:
+      - 1.1.1.1
+      - 9.9.9.9
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - </path/on/host>:/config
+    environment:
+      - OVPNPATH=<path/to/my.ovpn>
+      - USERNAME=<username>
+      - PASSWORD=<password>
+      - UID=<uid>
+      - GID=<gid>
+      - LOCAL_NETWORK=10.1.1.0/24
+    networks:
+      - office
+    ports:
+      - 8118:8118
+    restart: always
+
+networks:
+  office:

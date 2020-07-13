@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e -u -o pipefail
+
+[ ! -d /app/ovpn/config ] && mkdir -p /app/ovpn/config
+
+if [ -n "$UID" -a -n "$GID" ]; then
+  chown -R "$UID:$GID" /config
+fi
+
+if [ -n "$OVPNPATH" ]; then
+  set -- "$@" '--config' "/config/${OVPNPATH}"
+else
+  echo "No OpenVPN path config specified. Exiting."
+  exit 1
+fi
+
+if [ -n "$USERNAME" -a -n "$PASSWORD" ]; then
+  echo "$USERNAME" > auth.conf
+  echo "$PASSWORD" >> auth.conf
+  chmod 600 auth.conf
+  set -- "$@" '--auth-nocache'
+  set -- "$@" '--auth-user-pass' 'auth.conf'
+else
+  echo "No OpenVPN credentials set."
+fi
+
+openvpn "$@"
